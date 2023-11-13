@@ -1,0 +1,11 @@
+{
+  "version": 2,
+  "dgSpecHash": "FIlIeGItGkgZmYa6kvWeZyjgkjAqOgM38F4Yin2H998PpuPjOT11//7nvhhClsy67bkxomfDmyfYZYk0Nh1kiA==",
+  "success": true,
+  "projectFilePath": "C:\\Users\\artem\\source\\repos\\TelegramBot\\TelegramBot.csproj",
+  "expectedPackageFiles": [
+    "C:\\Users\\artem\\.nuget\\packages\\newtonsoft.json\\13.0.1\\newtonsoft.json.13.0.1.nupkg.sha512",
+    "C:\\Users\\artem\\.nuget\\packages\\telegram.bot\\19.0.0\\telegram.bot.19.0.0.nupkg.sha512"
+  ],
+  "logs": []
+}
