@@ -1,13 +1,23 @@
 ﻿using System;
+using System.IO;
 using System.Threading.Tasks;
 using Telegram.Bot;
 using Telegram.Bot.Args;
 using Telegram.Bot.Types;
+using Telegram.Bot.Types.InputFiles;
 using Telegram.Bot.Types.ReplyMarkups;
 
 class Program
 {
+
+
     private static TelegramBotClient botClient;
+
+    private static async Task SendTextMessage(long chatId, string text)
+    {
+        await botClient.SendTextMessageAsync(chatId, text);
+    }
+
 
     static async Task Main()
     {
@@ -27,73 +37,81 @@ class Program
         botClient.StopReceiving();
     }
 
+
     private static async void Bot_OnCallbackQuery(object sender, CallbackQueryEventArgs e)
     {
         string buttonText = e.CallbackQuery.Data;
+        long? chatId = e.CallbackQuery.Message?.Chat?.Id;
 
-        // Обработка нажатия кнопок с помощью switch
-        switch (buttonText)
+        if (chatId.HasValue)
         {
-            case "Button1":
-                await botClient.SendTextMessageAsync(e.CallbackQuery.Message.Chat.Id, "Вы нажали кнопку 1");
-                break;
+            switch (buttonText)
+            {
+                case "VideoButton":
+                    await SendVideo(chatId.Value);
+                    break;
 
-            case "Button2":
-                await botClient.SendTextMessageAsync(e.CallbackQuery.Message.Chat.Id, "Вы нажали кнопку 2");
-                break;
+                case "Button1":
+                    await SendTextMessage(chatId.Value, "Вы выбрали Кнопку 1");
+                    break;
 
-            case "Button3":
-                await botClient.SendTextMessageAsync(e.CallbackQuery.Message.Chat.Id, "Вы нажали кнопку 3");
-                break;
+                case "Button2":
+                    await SendTextMessage(chatId.Value, "Вы выбрали Кнопку 2");
+                    break;
 
-            case "Button4":
-                await botClient.SendTextMessageAsync(e.CallbackQuery.Message.Chat.Id, "Вы нажали кнопку 4");
-                break;
+                case "Button3":
+                    await SendTextMessage(chatId.Value, "Вы выбрали Кнопку 3");
+                    break;
 
-            case "Button5":
-                await botClient.SendTextMessageAsync(e.CallbackQuery.Message.Chat.Id, "Вы нажали кнопку 5");
-                break;
+                case "Button4":
+                    await SendTextMessage(chatId.Value, "Вы выбрали Кнопку 4");
+                    break;
 
-            case "Button6":
-                await botClient.SendTextMessageAsync(e.CallbackQuery.Message.Chat.Id, "Вы нажали кнопку 6");
-                break;
+                case "Button5":
+                    await SendTextMessage(chatId.Value, "Вы выбрали Кнопку 5");
+                    break;
 
-            case "Button7":
-                await botClient.SendTextMessageAsync(e.CallbackQuery.Message.Chat.Id, "Вы нажали кнопку 7");
-                break;
+                case "Button6":
+                    await SendTextMessage(chatId.Value, "Вы выбрали Кнопку 6");
+                    break;
 
-            case "Button8":
-                await botClient.SendTextMessageAsync(e.CallbackQuery.Message.Chat.Id, "Вы нажали кнопку 8");
-                break;
+                case "Button7":
+                    await SendTextMessage(chatId.Value, "Вы выбрали Кнопку 7");
+                    break;
 
-            case "OtherButton1":
-                await HandleOtherButtonPress(e.CallbackQuery.Message.Chat.Id, "Другая кнопка 1");
-                break;
+                case "Button8":
+                    await SendTextMessage(chatId.Value, "Вы выбрали Кнопку 8");
+                    break;
 
-            case "OtherButton2":
-                await HandleOtherButtonPress(e.CallbackQuery.Message.Chat.Id, "Другая кнопка 2");
-                break;
+                case "OtherButton1":
+                    await SendTextMessage(chatId.Value, "Вы выбрали Другую кнопку 1");
+                    break;
 
-            case "OtherButton3":
-                await HandleOtherButtonPress(e.CallbackQuery.Message.Chat.Id, "Другая кнопка 3");
-                break;
+                case "OtherButton2":
+                    await SendTextMessage(chatId.Value, "Вы выбрали Другую кнопку 2");
+                    break;
 
-            case "OtherButton4":
-                await HandleOtherButtonPress(e.CallbackQuery.Message.Chat.Id, "Другая кнопка 4");
-                break;
+                case "OtherButton3":
+                    await SendTextMessage(chatId.Value, "Вы выбрали Другую кнопку 3");
+                    break;
 
-            case "VideoButton":
-                // Замените "your_video_url" на актуальную ссылку на видео
-                await botClient.SendVideoAsync(e.CallbackQuery.Message.Chat.Id, "https://cdn.discordapp.com/attachments/1051084606964760577/1174784479697575946/123.mp4?ex=6568da4e&is=6556654e&hm=2bf77acae06fafd39d802607410fc9d643f5194243fc60eae92b2be3f17f71c8&");
-                break;
+                case "OtherButton4":
+                    await SendTextMessage(chatId.Value, "Вы выбрали Другую кнопку 4");
+                    break;
 
-            // Добавьте дополнительные кейсы для других кнопок
-
-            default:
-                // Обработка неизвестных кнопок
-                break;
+                default:
+                    await HandleOtherButtonPress(chatId.Value, buttonText);
+                    break;
+            }
+        }
+        else
+        {
+            Console.WriteLine("Ошибка: Не удалось определить chatId");
         }
     }
+
+
+
 
     private static async Task HandleOtherButtonPress(long chatId, string buttonText)
     {
@@ -102,51 +120,52 @@ class Program
 
     private static async void Bot_OnMessage(object sender, MessageEventArgs e)
     {
+        Console.WriteLine($"Received message from user {e.Message.From.Id} ({e.Message.From.Username}) in chat {e.Message.Chat.Id}: {e.Message.Text}");
         if (e.Message.Text == "/start")
         {
             var inlineKeyboard = new InlineKeyboardMarkup(new[]
             {
-            new[]
-            {
-                InlineKeyboardButton.WithCallbackData("Кнопка 1", "Button1"),
-                InlineKeyboardButton.WithCallbackData("Кнопка 2", "Button2")
-            },
-            new[]
-            {
-                InlineKeyboardButton.WithCallbackData("Кнопка 3", "Button3"),
-                InlineKeyboardButton.WithCallbackData("Кнопка 4", "Button4")
-            },
-            new[]
-            {
-                InlineKeyboardButton.WithCallbackData("Кнопка 5", "Button5"),
-                InlineKeyboardButton.WithCallbackData("Кнопка 6", "Button6")
-            },
-            new[]
-            {
-                InlineKeyboardButton.WithCallbackData("Кнопка 7", "Button7"),
-                InlineKeyboardButton.WithCallbackData("Кнопка 8", "Button8")
-            }
-        });
+                new[]
+                {
+                    InlineKeyboardButton.WithCallbackData("Кнопка 1", "Button1"),
+                    InlineKeyboardButton.WithCallbackData("Кнопка 2", "Button2")
+                },
+                new[]
+                {
+                    InlineKeyboardButton.WithCallbackData("Кнопка 3", "Button3"),
+                    InlineKeyboardButton.WithCallbackData("Кнопка 4", "Button4")
+                },
+                new[]
+                {
+                    InlineKeyboardButton.WithCallbackData("Кнопка 5", "Button5"),
+                    InlineKeyboardButton.WithCallbackData("Кнопка 6", "Button6")
+                },
+                new[]
+                {
+                    InlineKeyboardButton.WithCallbackData("Кнопка 7", "Button7"),
+                    InlineKeyboardButton.WithCallbackData("Кнопка 8", "Button8")
+                }
+            });
 
             var videoButton = InlineKeyboardButton.WithCallbackData("Видео", "VideoButton");
 
             var otherInlineKeyboard = new InlineKeyboardMarkup(new[]
             {
-            new[]
-            {
-                InlineKeyboardButton.WithCallbackData("Другая кнопка 1", "OtherButton1"),
-                InlineKeyboardButton.WithCallbackData("Другая кнопка 2", "OtherButton2")
-            },
-            new[]
-            {
-                InlineKeyboardButton.WithCallbackData("Другая кнопка 3", "OtherButton3"),
-                InlineKeyboardButton.WithCallbackData("Другая кнопка 4", "OtherButton4")
-            },
-            new[]
-            {
-                videoButton
-            }
-        });
+                new[]
+                {
+                    InlineKeyboardButton.WithCallbackData("Другая кнопка 1", "OtherButton1"),
+                    InlineKeyboardButton.WithCallbackData("Другая кнопка 2", "OtherButton2")
+                },
+                new[]
+                {
+                    InlineKeyboardButton.WithCallbackData("Другая кнопка 3", "OtherButton3"),
+                    InlineKeyboardButton.WithCallbackData("Другая кнопка 4", "OtherButton4")
+                },
+                new[]
+                {
+                    videoButton
+                }
+            });
 
             await botClient.SendTextMessageAsync(
                 chatId: e.Message.Chat.Id,
@@ -162,4 +181,25 @@ class Program
         }
         // Добавьте обработку других команд, если необходимо
     }
+
+
+
+
+    private static async Task SendVideo(long chatId)
+    {
+        try
+        {
+            var videoPath = "C:\\Users\\artem\\Downloads\\3333444.mp4"; // Укажите полный путь к вашему видеофайлу
+
+            using (var videoStream = new FileStream(videoPath, FileMode.Open))
+            {
+                await botClient.SendVideoAsync(chatId, new InputOnlineFile(videoStream), caption: "Описание видео");
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Ошибка при отправке видео: {ex.Message}");
+        }
+    }
+
 }
